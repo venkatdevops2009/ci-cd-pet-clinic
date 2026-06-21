@@ -46,9 +46,9 @@
         dest: /opt/petclinic
         version: main
 
-    - name: Update application-aws.yml with DB connection
+    - name: Update application.properties with DB connection
       blockinfile:
-        path: /opt/petclinic/src/main/resources/application-aws.yml
+        path: /opt/petclinic/src/main/resources/application.properties
         block: |
           spring.datasource.url=jdbc:mysql://{{ db_host }}:3306/{{ db_name }}?useSSL=false&allowPublicKeyRetrieval=true
           spring.datasource.username={{ db_user }}
@@ -103,3 +103,16 @@
       service:
         name: nginx
         state: restarted
+
+    - name: Wait for PetClinic to be ready
+      uri:
+        url: http://localhost/
+        status_code: 200
+      register: result
+      retries: 6          # retry up to 6 times
+      delay: 10           # wait 10 seconds between retries
+      until: result.status == 200
+
+    - name: Show health check result
+      debug:
+        msg: "PetClinic health check returned status {{ result.status }}"

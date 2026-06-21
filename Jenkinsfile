@@ -248,34 +248,7 @@ EOF
                     }
                 }
             }
-        }
-
-
-        stage('Application Health Check') {
-
-            when {
-                expression {
-                    params.ACTION == "apply"
-                }
-            }
-
-            steps {
-
-                dir('Infra') {
-
-                    sh '''
-                    JAVA_IP=$(terraform output -raw java_server_public_ip)
-
-                    echo "Waiting for application..."
-
-                    sleep 30
-
-                    curl -I http://$JAVA_IP:8080 || true
-                    '''
-                }
-            }
-        }
-    }
+        }        
 
     post {
 
