@@ -3,7 +3,7 @@
   become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
-    db_host: "{{ hostvars['db_server'].ansible_host }}"
+    db_host: "{{ groups['db_server'][0] }}"
     db_name: petclinic
     db_user: petclinic_user
     db_password: yourpassword
