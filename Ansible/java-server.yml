@@ -9,6 +9,18 @@
     db_password: yourpassword
 
   tasks:
+    - name: Remove Tomcat if installed
+      dnf:
+        name: tomcat
+        state: absent
+
+    - name: Stop and disable Tomcat service if present
+      service:
+        name: tomcat
+        state: stopped
+        enabled: no
+      ignore_errors: yes   # in case Tomcat service doesn't exist
+
     - name: Install Java
       dnf:
         name: java-17-openjdk
@@ -109,8 +121,8 @@
         url: http://localhost/
         status_code: 200
       register: result
-      retries: 6          # retry up to 6 times
-      delay: 10           # wait 10 seconds between retries
+      retries: 6
+      delay: 10
       until: result.status == 200
 
     - name: Show health check result
