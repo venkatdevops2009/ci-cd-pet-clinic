@@ -13,7 +13,7 @@ resource "aws_instance" "java_server" {
 
 resource "aws_instance" "db_server" {
   ami                    = var.ami_id
-  instance_type          = var.instance_type  
+  instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.db_sg.id]
   key_name               = var.key_name
   tags = merge(
