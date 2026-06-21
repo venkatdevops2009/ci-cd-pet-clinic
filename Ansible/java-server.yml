@@ -73,12 +73,20 @@
       args:
         chdir: /opt/petclinic
 
+    - name: Find latest PetClinic JAR
+      find:
+        paths: /opt/petclinic/target
+        patterns: "*.jar"
+        recurse: no
+      register: jar_files
+
     - name: Symlink latest PetClinic JAR
       file:
-        src: "{{ lookup('fileglob', '/opt/petclinic/target/petclinic-*.jar') }}"
+        src: "{{ (jar_files.files | sort(attribute='mtime') | last).path }}"
         dest: /opt/petclinic/petclinic.jar
         state: link
-      register: jar_link
+        force: yes
+      when: jar_files.matched > 0
 
     - name: Create systemd service for PetClinic
       copy:
