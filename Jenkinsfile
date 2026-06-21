@@ -247,9 +247,8 @@ EOF
                         }
                     }
                 }
-            }
-        }        
-
+            }        
+        }
     post {
 
         success {
@@ -264,4 +263,5 @@ EOF
             cleanWs()
         }
     }
+  }
 }
