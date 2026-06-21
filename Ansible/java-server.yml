@@ -19,7 +19,7 @@
         name: tomcat
         state: stopped
         enabled: no
-      ignore_errors: yes   # in case Tomcat service doesn't exist
+      ignore_errors: yes
 
     - name: Install Java
       dnf:
@@ -73,6 +73,13 @@
       args:
         chdir: /opt/petclinic
 
+    - name: Symlink latest PetClinic JAR
+      file:
+        src: "{{ lookup('fileglob', '/opt/petclinic/target/petclinic-*.jar') }}"
+        dest: /opt/petclinic/petclinic.jar
+        state: link
+      register: jar_link
+
     - name: Create systemd service for PetClinic
       copy:
         dest: /etc/systemd/system/petclinic.service
@@ -83,7 +90,7 @@
 
           [Service]
           User=ec2-user
-          ExecStart=/usr/bin/java -jar /opt/petclinic/target/petclinic-*.jar
+          ExecStart=/usr/bin/java -jar /opt/petclinic/petclinic.jar
           Restart=always
 
           [Install]
