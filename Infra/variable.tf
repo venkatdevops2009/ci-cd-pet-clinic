@@ -1,0 +1,29 @@
+variable "project" {
+  description = "The project name."
+  type        = string
+  default     = "my-project"
+}
+
+variable "environment" {
+  description = "The environment name."
+  type        = string
+  default     = "dev"
+}
+
+variable "ami_id" {
+  description = "The AMI ID for the EC2 instances."
+  type        = string
+  default     = "ami-0220d79f3f480ecf5" # Replace with your desired AMI ID
+}
+
+variable "instance_type" {
+  description = "The instance type for the EC2 instances."
+  type        = string
+  default     = "t3.micro" # Replace with your desired instance type
+}
+
+variable "key_name" {
+  description = "The name of the SSH key pair to use for the EC2 instances."
+  type        = string
+  default     = "petclinic-key" # Replace with your actual key pair name
+}
