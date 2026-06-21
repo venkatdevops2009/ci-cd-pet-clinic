@@ -3,7 +3,7 @@
   become: yes
   vars:
     ansible_python_interpreter: /usr/bin/python3
-    db_host: "{{ groups['db_server'][0] }}"   # first host in db_server group
+    db_host: "{{ groups['db_server'][0] }}"
     db_name: petclinic
     db_user: petclinic_user
     db_password: yourpassword
@@ -11,7 +11,7 @@
   tasks:
     - name: Install Java
       dnf:
-        name: java-1.8.0-openjdk
+        name: java-17-openjdk
         state: present
 
     - name: Install Maven
@@ -19,19 +19,19 @@
         name: maven
         state: present
 
-    - name: Install Tomcat
-      dnf:
-        name: tomcat
-        state: present
-
     - name: Install Git
       dnf:
         name: git
         state: present
 
-    - name: Start Tomcat
+    - name: Install Nginx
+      dnf:
+        name: nginx
+        state: present
+
+    - name: Start Nginx
       service:
-        name: tomcat
+        name: nginx
         state: started
         enabled: yes
 
@@ -46,21 +46,60 @@
         dest: /opt/petclinic
         version: main
 
-    - name: Update application-aws.yml with DB connection
+    - name: Update application.aws.yml with DB connection
       blockinfile:
-        path: /opt/petclinic/src/main/resources/application-aws.yml
+        path: /opt/petclinic/src/main/resources/application.aws.yml
         block: |
           spring.datasource.url=jdbc:mysql://{{ db_host }}:3306/{{ db_name }}?useSSL=false&allowPublicKeyRetrieval=true
           spring.datasource.username={{ db_user }}
           spring.datasource.password={{ db_password }}
           spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+          server.port=8080
 
-    - name: Build WAR with Maven
-      command: mvn clean install
+    - name: Build JAR with Maven
+      command: mvn clean package -DskipTests
       args:
         chdir: /opt/petclinic
 
-    - name: Copy WAR to Tomcat
+    - name: Create systemd service for PetClinic
       copy:
-        src: /opt/petclinic/target/petclinic.war
-        dest: /usr/share/tomcat/webapps/petclinic.war
+        dest: /etc/systemd/system/petclinic.service
+        content: |
+          [Unit]
+          Description=PetClinic Spring Boot Application
+          After=network.target
+
+          [Service]
+          User=ec2-user
+          ExecStart=/usr/bin/java -jar /opt/petclinic/target/petclinic-*.jar
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd and start PetClinic
+      systemd:
+        name: petclinic
+        state: started
+        enabled: yes
+
+    - name: Configure Nginx reverse proxy
+      copy:
+        dest: /etc/nginx/conf.d/petclinic.conf
+        content: |
+          server {
+              listen 80;
+              server_name _;
+              location / {
+                  proxy_pass http://127.0.0.1:8080;
+                  proxy_set_header Host $host;
+                  proxy_set_header X-Real-IP $remote_addr;
+                  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto $scheme;
+              }
+          }
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted
