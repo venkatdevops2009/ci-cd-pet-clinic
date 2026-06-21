@@ -46,9 +46,9 @@
         dest: /opt/petclinic
         version: main
 
-    - name: Update application.aws.yml with DB connection
+    - name: Update application-aws.yml with DB connection
       blockinfile:
-        path: /opt/petclinic/src/main/resources/application.aws.yml
+        path: /opt/petclinic/src/main/resources/application-aws.yml
         block: |
           spring.datasource.url=jdbc:mysql://{{ db_host }}:3306/{{ db_name }}?useSSL=false&allowPublicKeyRetrieval=true
           spring.datasource.username={{ db_user }}
