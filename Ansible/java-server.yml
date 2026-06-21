@@ -36,6 +36,11 @@
         name: git
         state: present
 
+    - name: Install MySQL client
+      dnf:
+        name: mysql
+        state: present
+
     - name: Install Nginx
       dnf:
         name: nginx
@@ -58,14 +63,16 @@
         dest: /opt/petclinic
         version: main
 
-    - name: Update application.properties with DB connection
-      blockinfile:
-        path: /opt/petclinic/src/main/resources/application-aws.yml
-        block: |
+    - name: Overwrite application.properties with DB connection
+      copy:
+        dest: /opt/petclinic/src/main/resources/application.properties
+        content: |
           spring.datasource.url=jdbc:mysql://{{ db_host }}:3306/{{ db_name }}?useSSL=false&allowPublicKeyRetrieval=true
           spring.datasource.username={{ db_user }}
           spring.datasource.password={{ db_password }}
           spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+          spring.jpa.hibernate.ddl-auto=update
+          spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
           server.port=8080
 
     - name: Build JAR with Maven
