@@ -37,3 +37,41 @@
         priv: "petclinic.*:ALL"
         host: "%"
         state: present
+
+    - name: Create pet_types table if not exists
+      mysql_query:
+        login_user: petclinic_user
+        login_password: yourpassword
+        login_db: petclinic
+        query: |
+          CREATE TABLE IF NOT EXISTS pet_types (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255) UNIQUE NOT NULL,
+            description VARCHAR(255)
+          );
+
+    - name: Seed default pet types
+      mysql_query:
+        login_user: petclinic_user
+        login_password: yourpassword
+        login_db: petclinic
+        query: |
+          INSERT INTO pet_types (name, description)
+          VALUES
+            ('Dog', 'Domestic dog'),
+            ('Cat', 'Domestic cat'),
+            ('Bird', 'Parrot, sparrow etc.')
+          ON DUPLICATE KEY UPDATE
+            description = VALUES(description);
+
+    - name: Verify pet_types table has rows
+      mysql_query:
+        login_user: petclinic_user
+        login_password: yourpassword
+        login_db: petclinic
+        query: "SELECT COUNT(*) AS count FROM pet_types;"
+      register: pet_types_count
+
+    - name: Show pet_types count
+      debug:
+        msg: "Pet types table has {{ pet_types_count.query_result[0].count }} rows"
