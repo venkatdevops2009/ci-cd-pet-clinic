@@ -2,6 +2,7 @@
 - hosts: java_server
   become: yes
   vars:
+    ansible_python_interpreter: /usr/bin/python3
     db_host: "{{ hostvars['db_server'].ansible_host }}"
     db_name: petclinic
     db_user: petclinic_user
@@ -9,18 +10,23 @@
 
   tasks:
     - name: Install Java
-      yum:
+      dnf:
         name: java-1.8.0-openjdk
         state: present
 
     - name: Install Maven
-      yum:
+      dnf:
         name: maven
         state: present
 
     - name: Install Tomcat
-      yum:
+      dnf:
         name: tomcat
+        state: present
+
+    - name: Install Git
+      dnf:
+        name: git
         state: present
 
     - name: Start Tomcat

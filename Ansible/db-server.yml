@@ -1,6 +1,8 @@
 # db-server.yml
 - hosts: db_server
   become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3   # force Ansible to use Python 3
   tasks:
     - name: Install MySQL
       yum:
@@ -12,6 +14,16 @@
         name: mysqld
         state: started
         enabled: yes
+
+    - name: Install Python3 and pip
+      yum:
+        name: python3-pip
+        state: present
+
+    - name: Install PyMySQL library
+      pip:
+        name: PyMySQL
+        executable: pip3
 
     - name: Create PetClinic database
       mysql_db:
