@@ -9,18 +9,7 @@
     db_password: yourpassword
 
   tasks:
-    - name: Remove Tomcat if installed
-      dnf:
-        name: tomcat
-        state: absent
-
-    - name: Stop and disable Tomcat service if present
-      service:
-        name: tomcat
-        state: stopped
-        enabled: no
-      ignore_errors: yes
-
+  
     - name: Install Java
       dnf:
         name: java-17-openjdk
