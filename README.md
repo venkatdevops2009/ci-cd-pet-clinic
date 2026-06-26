@@ -131,16 +131,3 @@ The Jenkins pipeline orchestrates the following workflow:
 For issues, questions, or contributions, please:
 - Open a GitHub issue
 - Contact the repository maintainer
-
-## 📄 License
-
-(Add your license information here)
-
-## 🔄 Changelog
-
-All notable changes to this project will be documented in the [Changelog](CHANGELOG.md).
-
----
-
-**Last Updated**: 2026-06-21  
-**Maintainer**: venkatdevops2009
